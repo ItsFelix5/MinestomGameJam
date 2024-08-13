@@ -1,0 +1,12 @@
+Name: Color Wars
+Description: Outlast your opponents by building your deck of colors, each giving you unique buffs to help you stay in the game longer!
+Source Code: TODO
+Server Implementation: Minestom
+Native version: 1.21
+Team members:
+- me
+
+Min player(s): 2 is the minimum playable but at least 4 are recommended
+Max players: 20 per game, but it can start multiple automatically
+Spec notes: None I hope
+Other notes: /start to start
