@@ -1,6 +1,6 @@
 Name: Color Wars
 Description: Outlast your opponents by building your deck of colors, each giving you unique buffs to help you stay in the game longer!
-Source Code: TODO
+Source Code: https://github.com/ItsFelix5/MinestomGameJam
 Server Implementation: Minestom
 Native version: 1.21
 Team members:
