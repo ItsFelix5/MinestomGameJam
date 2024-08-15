@@ -1,4 +1,4 @@
-package reimplementation;
+package gamejam.reimplementation;
 
 import net.minestom.server.MinecraftServer;
 import net.minestom.server.coordinate.Point;

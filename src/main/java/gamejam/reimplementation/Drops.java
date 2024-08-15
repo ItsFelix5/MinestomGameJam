@@ -1,4 +1,4 @@
-package reimplementation;
+package gamejam.reimplementation;
 
 import gamejam.Utils;
 import net.minestom.server.MinecraftServer;
@@ -27,19 +27,15 @@ public class Drops {
                 event.setCancelled(true);
         });
 
-        eventHandler.addListener(ItemDropEvent.class, event -> {
-            event.setCancelled(true);
-        });
+        eventHandler.addListener(ItemDropEvent.class, event -> event.setCancelled(true));
 
-        eventHandler.addListener(PlayerDeathEvent.class, event -> {
-            Arrays.stream(event.getPlayer().getInventory().getItemStacks()).filter(i -> i.material().name().contains("concrete")).forEach(i -> {
-                event.getPlayer().getInventory().processItemStack(i, TransactionType.TAKE, TransactionOption.ALL);
-                Pos pos = event.getEntity().getPosition();
-                ItemEntity itemEntity = new ItemEntity(i);
-                itemEntity.setInstance(event.getPlayer().getInstance(), Vec.fromPoint(pos).add(0, event.getPlayer().getEyeHeight() - .3f, 0));
-                itemEntity.setPickupDelay(Duration.ofSeconds(2));
-                itemEntity.setVelocity(new Vec(Utils.random.nextFloat(), .5f, Utils.random.nextFloat()));
-            });
-        });
+        eventHandler.addListener(PlayerDeathEvent.class, event -> Arrays.stream(event.getPlayer().getInventory().getItemStacks()).filter(i -> i.material().name().contains("concrete")).forEach(i -> {
+            event.getPlayer().getInventory().processItemStack(i, TransactionType.TAKE, TransactionOption.ALL);
+            Pos pos = event.getEntity().getPosition();
+            ItemEntity itemEntity = new ItemEntity(i);
+            itemEntity.setInstance(event.getPlayer().getInstance(), Vec.fromPoint(pos).add(0, event.getPlayer().getEyeHeight() - .3f, 0));
+            itemEntity.setPickupDelay(Duration.ofSeconds(2));
+            itemEntity.setVelocity(new Vec(Utils.random.nextFloat(), .5f, Utils.random.nextFloat()));
+        }));
     }
 }

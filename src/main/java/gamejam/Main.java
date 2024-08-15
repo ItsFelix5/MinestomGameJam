@@ -1,7 +1,7 @@
 package gamejam;
 
+import blocks.MinestomBlocks;
 import gamejam.blocks.Deck;
-import gamejam.blocks.Gray;
 import net.kyori.adventure.bossbar.BossBar;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -10,30 +10,30 @@ import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.util.HSVLike;
 import net.minestom.server.MinecraftServer;
 import net.minestom.server.command.builder.Command;
-import net.minestom.server.command.builder.arguments.ArgumentEnum;
-import net.minestom.server.command.builder.arguments.ArgumentType;
-import net.minestom.server.coordinate.Pos;
-import net.minestom.server.entity.EntityCreature;
-import net.minestom.server.entity.EntityType;
 import net.minestom.server.entity.GameMode;
 import net.minestom.server.entity.Player;
 import net.minestom.server.event.GlobalEventHandler;
+import net.minestom.server.event.instance.InstanceRegisterEvent;
 import net.minestom.server.event.player.AsyncPlayerConfigurationEvent;
-import net.minestom.server.event.player.PlayerBlockInteractEvent;
 import net.minestom.server.event.player.PlayerSpawnEvent;
 import net.minestom.server.event.server.ServerListPingEvent;
 import net.minestom.server.event.server.ServerTickMonitorEvent;
+import net.minestom.server.extras.bungee.BungeeCordProxy;
 import net.minestom.server.instance.Instance;
 import net.minestom.server.instance.block.Block;
-import net.minestom.server.item.ItemStack;
-import net.minestom.server.item.Material;
 import net.minestom.server.ping.ResponseData;
-import net.minestom.server.potion.Potion;
-import net.minestom.server.potion.PotionEffect;
 import net.minestom.server.registry.DynamicRegistry;
-import net.minestom.server.utils.Direction;
 import net.minestom.server.world.DimensionType;
-import reimplementation.Reimplementation;
+import pvp.enchantment.CombatEnchantments;
+import pvp.feature.CombatFeatures;
+import pvp.feature.FeatureType;
+import pvp.feature.config.CombatFeatureRegistry;
+import pvp.player.CombatPlayer;
+import pvp.player.CombatPlayerImpl;
+import pvp.potion.effect.CombatPotionEffects;
+import pvp.potion.item.CombatPotionTypes;
+import gamejam.reimplementation.Doors;
+import gamejam.reimplementation.Drops;
 
 import java.io.IOException;
 import java.text.DecimalFormat;
@@ -55,8 +55,8 @@ public class Main {
         handlePing();
 
         registerStartCommand();
-        initDebugUtils();
 
+        BungeeCordProxy.enable();
         server.start("0.0.0.0", 25565);
     }
 
@@ -71,7 +71,21 @@ public class Main {
         MinecraftServer.setBrandName("ColorWars");
 
         MinecraftServer.getBlockManager().registerBlockPlacementRule(new Deck());
-        Reimplementation.reimplementAll();
+
+        CombatEnchantments.registerAll();
+        CombatPotionEffects.registerAll();
+        CombatPotionTypes.registerAll();
+        CombatFeatureRegistry.init();
+        MinecraftServer.getConnectionManager().setPlayerProvider(CombatPlayerImpl::new);
+        MinecraftServer.getGlobalEventHandler().addChild(CombatFeatures.FEATURES.createNode());
+        CombatPlayer.init(MinecraftServer.getGlobalEventHandler());
+        MinecraftServer.getGlobalEventHandler().addListener(InstanceRegisterEvent.class,
+                event -> event.getInstance().setExplosionSupplier(CombatFeatures.FEATURES.get(FeatureType.EXPLOSION).getExplosionSupplier()));
+
+        MinestomBlocks.init();
+
+        Drops.implement();
+        Doors.implement();
     }
 
     private static void handlePing() {
@@ -111,14 +125,9 @@ public class Main {
         eventHandler.addListener(PlayerSpawnEvent.class, event -> {
             if (!event.isFirstSpawn()) return;
             Player player = event.getPlayer();
-            //player.setReducedDebugScreenInformation(true);
+            player.setReducedDebugScreenInformation(true);
             player.setEnableRespawnScreen(false);
             player.setGameMode(GameMode.ADVENTURE);
-            if (player.getUsername().equals("ItsFelix___")) {
-                player.setPermissionLevel(4);
-                MinecraftServer.getBossBarManager().addBossBar(player, MSPT);
-                MinecraftServer.getBossBarManager().addBossBar(player, RAM);
-            }
         });
     }
 
@@ -136,25 +145,5 @@ public class Main {
             games.put(game.instance, game);
         }));
         MinecraftServer.getCommandManager().register(startCommand);
-    }
-
-    private static void initDebugUtils() {
-        Command gamemodeCommand = new Command("gamemode");
-        ArgumentEnum<GameMode> gamemode = ArgumentType.Enum("gamemode", GameMode.class)
-                .setFormat(ArgumentEnum.Format.LOWER_CASED);
-        gamemodeCommand.setCondition((sender, ctx) -> sender instanceof Player && ((Player) sender).getPermissionLevel() > 1);
-        gamemodeCommand.addSyntax((sender, ctx) -> ((Player) sender).setGameMode(ctx.get(gamemode)), gamemode);
-        MinecraftServer.getCommandManager().register(gamemodeCommand);
-
-        MinecraftServer.getGlobalEventHandler().addListener(PlayerBlockInteractEvent.class, (event) -> {
-            ItemStack item = event.getPlayer().getItemInHand(event.getHand());
-            if (item.isAir()) return;
-            Material mat = item.material();
-            if (!mat.name().contains("spawn_egg")) return;
-
-            Direction dir = event.getBlockFace().toDirection();
-            new EntityCreature(EntityType.fromNamespaceId(mat.namespace().value().replace("_spawn_egg", "").toLowerCase()))
-                    .setInstance(event.getPlayer().getInstance(), new Pos(event.getBlockPosition().add(dir.normalX(), dir.normalY(), dir.normalZ())));
-        });
     }
 }
