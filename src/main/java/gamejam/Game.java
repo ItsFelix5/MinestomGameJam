@@ -1,6 +1,5 @@
 package gamejam;
 
-import gamejam.buffs.Buff;
 import gamejam.buffs.Buffs;
 import net.hollowcube.polar.PolarLoader;
 import net.kyori.adventure.text.Component;
@@ -49,7 +48,7 @@ public class Game {
             for (int i = 0; i < numTeams * playersPerTeam + remainder; i += playersPerTeam) {
                 if(remainder > 0) i++;
                 int j = i;
-                teams.computeIfAbsent(Teams.values()[i], k -> k.create(instance,
+                teams.computeIfAbsent(Teams.values()[i % 4], k -> k.create(instance,
                         new HashSet<>(players.subList(j, j + playersPerTeam))));
             }
         }

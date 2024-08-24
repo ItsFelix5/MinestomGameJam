@@ -10,20 +10,29 @@ import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.util.HSVLike;
 import net.minestom.server.MinecraftServer;
 import net.minestom.server.command.builder.Command;
+import net.minestom.server.command.builder.arguments.Argument;
+import net.minestom.server.command.builder.arguments.ArgumentEnum;
+import net.minestom.server.command.builder.arguments.ArgumentType;
 import net.minestom.server.entity.GameMode;
 import net.minestom.server.entity.Player;
+import net.minestom.server.event.EventFilter;
+import net.minestom.server.event.EventNode;
 import net.minestom.server.event.GlobalEventHandler;
 import net.minestom.server.event.instance.InstanceRegisterEvent;
 import net.minestom.server.event.player.AsyncPlayerConfigurationEvent;
+import net.minestom.server.event.player.PlayerDeathEvent;
 import net.minestom.server.event.player.PlayerSpawnEvent;
 import net.minestom.server.event.server.ServerListPingEvent;
 import net.minestom.server.event.server.ServerTickMonitorEvent;
+import net.minestom.server.event.trait.InstanceEvent;
+import net.minestom.server.event.trait.PlayerEvent;
 import net.minestom.server.extras.bungee.BungeeCordProxy;
 import net.minestom.server.instance.Instance;
 import net.minestom.server.instance.block.Block;
 import net.minestom.server.ping.ResponseData;
 import net.minestom.server.registry.DynamicRegistry;
 import net.minestom.server.world.DimensionType;
+import org.jetbrains.annotations.NotNull;
 import pvp.enchantment.CombatEnchantments;
 import pvp.feature.CombatFeatures;
 import pvp.feature.FeatureType;
@@ -54,7 +63,7 @@ public class Main {
         handleJoin();
         handlePing();
 
-        registerStartCommand();
+        registerCommands();
 
         BungeeCordProxy.enable();
         server.start("0.0.0.0", 25565);
@@ -128,10 +137,15 @@ public class Main {
             player.setReducedDebugScreenInformation(true);
             player.setEnableRespawnScreen(false);
             player.setGameMode(GameMode.ADVENTURE);
+            if(player.getUsername().equals("ItsFelix___")) {
+                event.getPlayer().showBossBar(MSPT);
+                event.getPlayer().showBossBar(RAM);
+                event.getPlayer().setPermissionLevel(4);
+            }
         });
     }
 
-    private static void registerStartCommand() {
+    private static void registerCommands() {
         Command startCommand = new Command("start");
         startCommand.setDefaultExecutor(((sender, ctx) -> {
             if (!(sender instanceof Player) || ((Player) sender).getInstance() != lobby) return;
@@ -145,5 +159,11 @@ public class Main {
             games.put(game.instance, game);
         }));
         MinecraftServer.getCommandManager().register(startCommand);
+
+        Command gamemode = new Command("gamemode");
+        Argument<GameMode> gamemodeArgument = ArgumentType.Enum("gamemode", GameMode.class).setFormat(ArgumentEnum.Format.LOWER_CASED);
+        gamemode.setCondition(((sender, s) -> ((Player) sender).getPermissionLevel() > 1));
+        gamemode.addSyntax((sender, ctx) -> ((Player) sender).setGameMode(ctx.get("gamemode")), gamemodeArgument);
+        MinecraftServer.getCommandManager().register(gamemode);
     }
 }

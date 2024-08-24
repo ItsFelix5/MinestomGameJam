@@ -56,6 +56,7 @@ public enum Teams {
         private final Instance instance;
         private final Set<Player> members;
         private final Set<Buff> buffs = new HashSet<>();
+        private final EventNode<PlayerEvent> node;
 
         private Team(Teams constants, Instance instance, Set<Player> members) {
             this.constants = constants;
@@ -65,6 +66,7 @@ public enum Teams {
                             (TeamsPacket.NameTagVisibility.HIDE_FOR_OTHER_TEAMS).build();
             this.members = members;
             members.forEach(player -> {
+                player.setGameMode(GameMode.ADVENTURE);//Just in case
                 player.setHealth(20);
                 player.setFood(20);
                 player.setFoodSaturation(20);
@@ -75,7 +77,7 @@ public enum Teams {
                 Kit.equip(player.getInventory());
             });
 
-            EventNode<PlayerEvent> node = EventNode.value(constants.name(), EventFilter.PLAYER, members::contains);
+            node = EventNode.value(constants.name(), EventFilter.PLAYER, members::contains);
             node.addListener(PlayerDeathEvent.class, event -> {
                 Player player = event.getPlayer();
                 player.setGameMode(GameMode.SPECTATOR);
@@ -148,6 +150,7 @@ public enum Teams {
             instance.sendMessage(Component.text("Team " + constants.name() + " has been eliminated!", NamedTextColor.RED));
             instance.getPlayers().forEach(p -> p.playSound(Sound.sound(SoundEvent.EVENT_MOB_EFFECT_RAID_OMEN, Sound.Source.AMBIENT, 10, .9f)));
             instance.setBlock(constants.core, Gray.GRAY);
+            MinecraftServer.getGlobalEventHandler().removeChild(node);
             MinecraftServer.getTeamManager().deleteTeam(team);
             Game game = Main.games.get(instance);
             game.teams.remove(constants);
