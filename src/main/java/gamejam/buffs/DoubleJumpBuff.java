@@ -21,7 +21,7 @@ public class DoubleJumpBuff extends Buff {
             player.setAllowFlying(false);
             player.setFlying(false);
             player.setVelocity(player.getVelocity().mul(3).withY(12.5));
-            player.getAttribute(Attribute.GENERIC_SAFE_FALL_DISTANCE).setBaseValue(9);
+            player.getAttribute(Attribute.GENERIC_SAFE_FALL_DISTANCE).setBaseValue(12);
         });
     }
 

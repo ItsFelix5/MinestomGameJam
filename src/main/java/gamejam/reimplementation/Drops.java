@@ -23,7 +23,7 @@ public class Drops {
 
         eventHandler.addListener(PickupItemEvent.class, event -> {
             Player player = (Player) event.getLivingEntity();
-            if(player.getGameMode() == GameMode.SPECTATOR || !player.getInventory().addItemStack(event.getItemStack()))
+            if (player.getGameMode() == GameMode.SPECTATOR || !player.getInventory().addItemStack(event.getItemStack()))
                 event.setCancelled(true);
         });
 

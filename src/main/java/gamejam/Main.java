@@ -2,6 +2,9 @@ package gamejam;
 
 import blocks.MinestomBlocks;
 import gamejam.blocks.Deck;
+import gamejam.reimplementation.Doors;
+import gamejam.reimplementation.Drops;
+import net.hollowcube.polar.PolarLoader;
 import net.kyori.adventure.bossbar.BossBar;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -15,24 +18,18 @@ import net.minestom.server.command.builder.arguments.ArgumentEnum;
 import net.minestom.server.command.builder.arguments.ArgumentType;
 import net.minestom.server.entity.GameMode;
 import net.minestom.server.entity.Player;
-import net.minestom.server.event.EventFilter;
-import net.minestom.server.event.EventNode;
 import net.minestom.server.event.GlobalEventHandler;
 import net.minestom.server.event.instance.InstanceRegisterEvent;
 import net.minestom.server.event.player.AsyncPlayerConfigurationEvent;
-import net.minestom.server.event.player.PlayerDeathEvent;
 import net.minestom.server.event.player.PlayerSpawnEvent;
 import net.minestom.server.event.server.ServerListPingEvent;
 import net.minestom.server.event.server.ServerTickMonitorEvent;
-import net.minestom.server.event.trait.InstanceEvent;
-import net.minestom.server.event.trait.PlayerEvent;
-import net.minestom.server.extras.bungee.BungeeCordProxy;
+import net.minestom.server.instance.IChunkLoader;
 import net.minestom.server.instance.Instance;
 import net.minestom.server.instance.block.Block;
 import net.minestom.server.ping.ResponseData;
 import net.minestom.server.registry.DynamicRegistry;
 import net.minestom.server.world.DimensionType;
-import org.jetbrains.annotations.NotNull;
 import pvp.enchantment.CombatEnchantments;
 import pvp.feature.CombatFeatures;
 import pvp.feature.FeatureType;
@@ -41,10 +38,11 @@ import pvp.player.CombatPlayer;
 import pvp.player.CombatPlayerImpl;
 import pvp.potion.effect.CombatPotionEffects;
 import pvp.potion.item.CombatPotionTypes;
-import gamejam.reimplementation.Doors;
-import gamejam.reimplementation.Drops;
 
 import java.io.IOException;
+import java.net.URI;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.text.DecimalFormat;
 import java.util.HashMap;
 import java.util.Map;
@@ -54,26 +52,36 @@ public class Main {
     public static Instance lobby;
     public static Component colorwars = Component.empty();
     public static Map<Instance, Game> games = new HashMap<>();
+    public static IChunkLoader loader;
 
     public static void main(String[] args) throws IOException {
         MinecraftServer server = MinecraftServer.init();
 
         init();
-        setupLobby();
+        setupMaps();
         handleJoin();
         handlePing();
 
         registerCommands();
 
-        BungeeCordProxy.enable();
+        //BungeeCordProxy.enable();
         server.start("0.0.0.0", 25565);
     }
 
-    private static void setupLobby() {
+    private static void setupMaps() {
         DimensionType dimension = DimensionType.builder().ambientLight(2).build();
         fullbright = MinecraftServer.getDimensionTypeRegistry().register("world", dimension);
         lobby = MinecraftServer.getInstanceManager().createInstanceContainer(fullbright);
         lobby.setGenerator(unit -> unit.modifier().fillHeight(-10, 0, Block.GRASS_BLOCK));
+
+
+        Path path = Path.of("world.polar");
+        try {
+            if (Files.exists(path)) loader = new PolarLoader(path);
+            else loader = new PolarLoader(new URI("https://github.com/ItsFelix5/MinestomGameJam/raw/master/world.polar").toURL().openStream());
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private static void init() {
@@ -137,7 +145,7 @@ public class Main {
             player.setReducedDebugScreenInformation(true);
             player.setEnableRespawnScreen(false);
             player.setGameMode(GameMode.ADVENTURE);
-            if(player.getUsername().equals("ItsFelix___")) {
+            if (player.getUsername().equals("ItsFelix___")) {
                 event.getPlayer().showBossBar(MSPT);
                 event.getPlayer().showBossBar(RAM);
                 event.getPlayer().setPermissionLevel(4);
@@ -148,7 +156,9 @@ public class Main {
     private static void registerCommands() {
         Command startCommand = new Command("start");
         startCommand.setDefaultExecutor(((sender, ctx) -> {
-            if (!(sender instanceof Player) || ((Player) sender).getInstance() != lobby) return;
+            Player player = (Player) sender;
+            if (player.getPermissionLevel() < 3 && (player.getInstance() != lobby || lobby.getPlayers().stream().anyMatch(p -> p.getPermissionLevel() > 3)))
+                return;
             lobby.sendMessage(Component.text(((Player) sender).getUsername() + " started the game"));
             lobby.sendMessage(colorwars);
             lobby.sendMessage(Component.text("""

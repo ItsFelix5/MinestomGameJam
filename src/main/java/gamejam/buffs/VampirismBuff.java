@@ -10,11 +10,12 @@ import pvp.events.FinalAttackEvent;
 
 public class VampirismBuff extends Buff {
     VampirismBuff() {
-        addListener(FinalAttackEvent.class, event->{
+        addListener(FinalAttackEvent.class, event -> {
             Player player = (Player) event.getEntity();
             PlayerMeta meta = (PlayerMeta) event.getTarget().getEntityMeta();
-            if(player.getItemInMainHand().material().name().contains("_axe") || (meta.isHandActive() && ((Player) event.getTarget()).getItemInHand(meta.getActiveHand()).material() == Material.SHIELD)) return;
-            player.setHealth(player.getHealth()+event.getBaseDamage() / 4);
+            if (player.getItemInMainHand().material().name().contains("_axe") || (meta.isHandActive() && ((Player) event.getTarget()).getItemInHand(meta.getActiveHand()).material() == Material.SHIELD))
+                return;
+            player.setHealth(player.getHealth() + event.getBaseDamage() / 4);
         });
         addListener(DamageBlockEvent.class, event -> {
             event.setKnockbackAttacker(true);

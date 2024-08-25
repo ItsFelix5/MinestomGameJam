@@ -15,7 +15,6 @@ import pvp.feature.RegistrableFeature;
 import pvp.feature.config.DefinedFeature;
 import pvp.feature.config.FeatureConfiguration;
 import pvp.feature.provider.DifficultyProvider;
-import pvp.utils.CombatVersion;
 
 /**
  * Vanilla implementation of {@link RegenerationFeature}
@@ -31,7 +30,6 @@ public class VanillaRegenerationFeature implements RegenerationFeature, Registra
 
     private ExhaustionFeature exhaustionFeature;
     private DifficultyProvider difficultyFeature;
-    private CombatVersion version;
 
     public VanillaRegenerationFeature(FeatureConfiguration configuration) {
         this.configuration = configuration;
@@ -45,7 +43,6 @@ public class VanillaRegenerationFeature implements RegenerationFeature, Registra
     public void initDependencies() {
         this.exhaustionFeature = configuration.get(FeatureType.EXHAUSTION);
         this.difficultyFeature = configuration.get(FeatureType.DIFFICULTY);
-        this.version = configuration.get(FeatureType.VERSION);
     }
 
     @Override
@@ -62,7 +59,7 @@ public class VanillaRegenerationFeature implements RegenerationFeature, Registra
         int starvationTicks = player.getTag(STARVATION_TICKS);
 
         if (player.getFoodSaturation() > 0 && health > 0
-                && health < player.getAttributeValue(Attribute.GENERIC_MAX_HEALTH) && food >= 20) {
+                && health < player.getAttributeValue(Attribute.GENERIC_MAX_HEALTH)) {
             starvationTicks++;
             if (starvationTicks >= 10) {
                 float amount = Math.min(player.getFoodSaturation(), 6);
@@ -73,7 +70,7 @@ public class VanillaRegenerationFeature implements RegenerationFeature, Registra
                 && health < player.getAttributeValue(Attribute.GENERIC_MAX_HEALTH)) {
             starvationTicks++;
             if (starvationTicks >= 80) {
-                regenerate(player, 1, 4);
+                regenerate(player, 2, 4);
                 starvationTicks = 0;
             }
         } else if (food <= 0) {

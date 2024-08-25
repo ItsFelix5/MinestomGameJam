@@ -24,7 +24,7 @@ public class GrappleBuff extends Buff {
 
     @Override
     public void remove(Player player) {
-        Utils.findItemsOf(player.getInventory(), Material.FISHING_ROD, i->ItemStack.AIR);
+        Utils.findItemsOf(player.getInventory(), Material.FISHING_ROD, i -> ItemStack.AIR);
         player.getAttribute(Attribute.GENERIC_SAFE_FALL_DISTANCE).setBaseValue(3);
     }
 

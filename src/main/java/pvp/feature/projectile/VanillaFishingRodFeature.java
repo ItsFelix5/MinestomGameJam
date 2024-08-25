@@ -1,7 +1,6 @@
 package pvp.feature.projectile;
 
 import net.kyori.adventure.sound.Sound;
-import net.minestom.server.MinecraftServer;
 import net.minestom.server.ServerFlag;
 import net.minestom.server.coordinate.Pos;
 import net.minestom.server.coordinate.Vec;
@@ -130,8 +129,8 @@ public class VanillaFishingRodFeature implements FishingRodFeature, RegistrableF
             }
         });
 
-        node.addListener(ProjectileCollideWithBlockEvent.class, event-> {
-            if(event.getEntity().getEntityType() != EntityType.FISHING_BOBBER) return;
+        node.addListener(ProjectileCollideWithBlockEvent.class, event -> {
+            if (event.getEntity().getEntityType() != EntityType.FISHING_BOBBER) return;
             ((FishingBobber) event.getEntity()).setInBlock();
         });
     }

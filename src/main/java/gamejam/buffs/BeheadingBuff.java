@@ -10,7 +10,8 @@ import pvp.events.FinalAttackEvent;
 public class BeheadingBuff extends Buff {
     BeheadingBuff() {
         addListener(FinalAttackEvent.class, event -> {
-            if(!((Player)event.getEntity()).getItemInMainHand().material().name().contains("_axe") || !event.isCritical() || Utils.random.nextInt(4) != 0) return;
+            if (!((Player) event.getEntity()).getItemInMainHand().material().name().contains("_axe") || !event.isCritical() || Utils.random.nextInt(4) != 0)
+                return;
             event.getTarget().addEffect(new Potion(PotionEffect.SLOWNESS, (byte) 1, 400));
             event.getTarget().addEffect(new Potion(PotionEffect.BLINDNESS, (byte) 1, 200));
             event.getTarget().addEffect(new Potion(PotionEffect.WEAKNESS, (byte) 1, 200));

@@ -45,7 +45,7 @@ public class FlamethrowerBuff extends Buff {
                         1.0f, 1.0f
                 ), player);
             }
-            player.scheduler().scheduleTask(()-> Utils.findItemsOf(player.getInventory(), Material.BOW, i->i.without(ItemComponent.DAMAGE)), TaskSchedule.seconds(3), TaskSchedule.stop());
+            player.scheduler().scheduleTask(() -> Utils.findItemsOf(player.getInventory(), Material.BOW, i -> i.without(ItemComponent.DAMAGE)), TaskSchedule.seconds(3), TaskSchedule.stop());
             event.setCancelled(true);
         });
     }

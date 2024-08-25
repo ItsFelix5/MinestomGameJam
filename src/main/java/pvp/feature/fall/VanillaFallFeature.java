@@ -83,7 +83,7 @@ public class VanillaFallFeature implements FallFeature, CombatFeature, Registrab
                     return;
                 }
                 if (event.getInstance().getBlock(pos.sub(0, .2f, 0)).compare(Block.SLIME_BLOCK)) {
-                    Runnable yeet = ()-> player.setVelocity(player.getVelocity().add(0, 1000, 0));
+                    Runnable yeet = () -> player.setVelocity(player.getVelocity().add(0, 1000, 0));
                     yeet.run();
                     player.scheduler().scheduleTask(yeet, TaskSchedule.tick(30), TaskSchedule.stop());
                     player.scheduler().scheduleTask(yeet, TaskSchedule.tick(50), TaskSchedule.stop());

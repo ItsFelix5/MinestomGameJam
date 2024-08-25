@@ -4,7 +4,10 @@ import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.sound.Sound;
 import net.minestom.server.ServerFlag;
 import net.minestom.server.coordinate.Pos;
-import net.minestom.server.entity.*;
+import net.minestom.server.entity.Entity;
+import net.minestom.server.entity.EquipmentSlot;
+import net.minestom.server.entity.LivingEntity;
+import net.minestom.server.entity.Player;
 import net.minestom.server.entity.attribute.Attribute;
 import net.minestom.server.entity.damage.Damage;
 import net.minestom.server.entity.damage.DamageType;
@@ -30,7 +33,6 @@ import pvp.feature.food.ExhaustionFeature;
 import pvp.feature.item.ItemDamageFeature;
 import pvp.feature.knockback.KnockbackFeature;
 import pvp.player.CombatPlayer;
-import pvp.utils.CombatVersion;
 import pvp.utils.ViewUtil;
 
 /**
@@ -58,8 +60,6 @@ public class VanillaAttackFeature implements AttackFeature, RegistrableFeature {
     private SweepingFeature sweepingFeature;
     private KnockbackFeature knockbackFeature;
 
-    private CombatVersion version;
-
     public VanillaAttackFeature(FeatureConfiguration configuration) {
         this.configuration = configuration;
     }
@@ -73,18 +73,16 @@ public class VanillaAttackFeature implements AttackFeature, RegistrableFeature {
         this.criticalFeature = configuration.get(FeatureType.CRITICAL);
         this.sweepingFeature = configuration.get(FeatureType.SWEEPING);
         this.knockbackFeature = configuration.get(FeatureType.KNOCKBACK);
-        this.version = configuration.get(FeatureType.VERSION);
     }
 
     @Override
     public void init(EventNode<EntityInstanceEvent> node) {
         node.addListener(EntityAttackEvent.class, event -> {
             if (event.getEntity() instanceof Player player
-                    && player.getGameMode() != GameMode.SPECTATOR
+                    && !player.isInvulnerable()
                     && !player.isDead()
-                    && player.getDistanceSquared(event.getTarget()) < MAX_DISTANCE_SQUARED) {
+                    && player.getDistanceSquared(event.getTarget()) < MAX_DISTANCE_SQUARED)
                 performAttack(player, event.getTarget());
-            }
         });
     }
 

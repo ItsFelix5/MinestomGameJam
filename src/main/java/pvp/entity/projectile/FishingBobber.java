@@ -3,10 +3,12 @@ package pvp.entity.projectile;
 import net.minestom.server.ServerFlag;
 import net.minestom.server.coordinate.Pos;
 import net.minestom.server.coordinate.Vec;
-import net.minestom.server.entity.*;
+import net.minestom.server.entity.Entity;
+import net.minestom.server.entity.EntityType;
+import net.minestom.server.entity.ItemEntity;
+import net.minestom.server.entity.Player;
 import net.minestom.server.entity.attribute.Attribute;
 import net.minestom.server.entity.metadata.other.FishingHookMeta;
-import net.minestom.server.item.Material;
 import org.jetbrains.annotations.Nullable;
 import pvp.feature.projectile.VanillaFishingRodFeature;
 
@@ -30,13 +32,13 @@ public class FishingBobber extends CustomEntityProjectile {
 
     @Override
     public void tick(long time) {
-        if(!hasNoGravity()) velocity = velocity.add(0, -customGravity * ServerFlag.SERVER_TICKS_PER_SECOND, 0);
+        if (!hasNoGravity()) velocity = velocity.add(0, -customGravity * ServerFlag.SERVER_TICKS_PER_SECOND, 0);
         super.tick(time);
     }
 
     @Override
     public void update(long time) {
-        if (!(getShooter() instanceof Player shooter)) {
+        if (!(getShooter() instanceof Player)) {
             remove();
             return;
         }

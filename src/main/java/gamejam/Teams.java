@@ -38,8 +38,8 @@ public enum Teams {
     C(new Pos(-70, 123, 272), new BlockVec(-68, 125, 267)),
     D(new Pos(-72, 148, 137), new BlockVec(-74, 150, 136));
 
-    private final Pos core;
     public final BlockVec deck;
+    private final Pos core;
 
     Teams(Pos core, BlockVec deck) {
         this.core = core;
@@ -62,8 +62,8 @@ public enum Teams {
             this.constants = constants;
             this.instance = instance;
             this.team =
-                    MinecraftServer.getTeamManager().createBuilder(constants.name()).prefix(Component.text("[" + constants.name() + "] ")).nameTagVisibility
-                            (TeamsPacket.NameTagVisibility.HIDE_FOR_OTHER_TEAMS).build();
+                    MinecraftServer.getTeamManager().createBuilder(constants.name()).prefix(Component.text("[" + constants.name() + "] "))
+                            .nameTagVisibility(TeamsPacket.NameTagVisibility.HIDE_FOR_OTHER_TEAMS).build();
             this.members = members;
             members.forEach(player -> {
                 player.setGameMode(GameMode.ADVENTURE);//Just in case
@@ -96,6 +96,7 @@ public enum Teams {
                         player.stopSpectating();
                         player.teleport(constants.core.add(0, 1, 0));
                         player.setGameMode(GameMode.ADVENTURE);
+                        player.setInvisible(false); // Hopefully fixes something
                     }, TaskSchedule.seconds(10), TaskSchedule.stop());
                 }
             });
@@ -116,7 +117,7 @@ public enum Teams {
             members.forEach(buff::add);
             if (buffs.isEmpty()) instance.setBlock(constants.core.sub(0, 1, 0), Block.DIAMOND_BLOCK);
             buffs.add(buff);
-            instance.sendMessage(Component.text("Team "+constants.name()+" now has ").append(buff.getName()));
+            instance.sendMessage(Component.text("Team " + constants.name() + " now has ").append(buff.getName()));
             members.forEach(p -> {
                 p.playSound(Sound.sound(SoundEvent.ENTITY_PLAYER_LEVELUP, Sound.Source.AMBIENT, 1, 1));
                 p.sendActionBar(Component.text("A new buff has been added!", NamedTextColor.GREEN));
@@ -179,7 +180,8 @@ public enum Teams {
             Sidebar scoreboard = Main.games.get(instance).scoreboard;
             final Component text;
             if (buffs.isEmpty()) text = Component.text(members.size(), NamedTextColor.RED);
-            else text = buffs.stream().map(b -> Component.text("\u2B1B", b.getName().color(), TextDecoration.BOLD)).reduce(Component.empty(), TextComponent::append);
+            else
+                text = buffs.stream().map(b -> Component.text("\u2B1B", b.getName().color(), TextDecoration.BOLD)).reduce(Component.empty(), TextComponent::append);
             scoreboard.updateLineContent(constants.name(), Component.text("Team " + constants.name() + ": ", NamedTextColor.WHITE).append(text));
         }
     }

@@ -24,7 +24,7 @@ public class Utils {
     public static void findItemsOf(PlayerInventory inv, Material material, Function<ItemStack, ItemStack> cb) {
         for (int slot = 0; slot < inv.getInnerSize(); slot++) {
             ItemStack stack = inv.getItemStack(slot);
-            if(stack.material() != material) continue;
+            if (stack.material() != material) continue;
             inv.setItemStack(slot, cb.apply(stack));
         }
     }
